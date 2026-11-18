@@ -31,13 +31,22 @@ const updateProgress = perFrame(() => {
 addEventListener('scroll', updateProgress, { passive: true });
 addEventListener('resize', updateProgress);
 
-// Cursor glow
-const glow = document.querySelector('.cursor-glow');
-addEventListener('pointermove', perFrame((e) => {
-  if (e.pointerType === 'touch') return;
-  document.body.classList.add('has-glow');
-  glow.style.transform = `translate(${e.clientX}px,${e.clientY}px)`;
-}));
+// Light / dark toggle (initial theme is set by an inline script in <head>)
+const themeBtn = document.querySelector('.theme-toggle');
+if (themeBtn) {
+  const sync = () => {
+    const dark = document.documentElement.dataset.theme === 'dark';
+    themeBtn.setAttribute('aria-pressed', String(dark));
+    themeBtn.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+  };
+  sync();
+  themeBtn.addEventListener('click', () => {
+    const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch (e) { /* storage unavailable */ }
+    sync();
+  });
+}
 
 // Pause the cloud animation while the hero is off-screen
 const hero = document.querySelector('.hero');
